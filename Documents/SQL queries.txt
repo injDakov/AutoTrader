@@ -1,0 +1,60 @@
+SELECT 
+	[PH].*, [P].[Name] 
+FROM 
+	[AutoTrader].[dbo].[PairHistory] [PH]
+INNER JOIN 
+	[AutoTrader].[dbo].[Pairs] [P]
+	ON [PH].[PairId] = [P].[Id]
+ORDER BY
+	[PH].[ExecutedSellOrderCount] DESC,
+	[PH].[ExecutedBuyOrderCount] DESC,
+	[PH].[IsActive]
+	
+-------------------------------------------------
+
+SELECT
+	[Ord].[Id],
+	[Ord].[Side],
+	[Ord].[Price], 
+	[Ord].[ProfitRatio],
+	[Ord].[OrderLevel], 	
+	[Ord].[CurrentMarketPrice],
+	[Ord].[Symbol],
+	--(SELECT MIN(MaxPrice)
+ --     FROM (VALUES ([OrdP].[Price] * [OrdP].[ProfitRatio]),([OrdP].[CurrentMarketPrice] * [OrdP].[ProfitRatio])) AS Price(MaxPrice)) 
+	--AS [CalculatedPrice],
+	(SELECT MIN(RatioToCurrentPrice)
+		FROM (VALUES ([Ord].[CurrentMarketPrice] / [OrdP].[Price]),([Ord].[CurrentMarketPrice] / [OrdP].[CurrentMarketPrice])) AS Ratio(RatioToCurrentPrice)) 
+	AS [CalculateRatioToCurrentPrice],
+	[OrdP].[Side] AS [PrevSite], 
+	[OrdP].[Price] AS [PrevPrice],
+	[OrdP].[ProfitRatio] AS [PrevProfitRatio],
+	[OrdP].[OrderLevel] AS [PrevOrderLevel],
+	[OrdP].[CurrentMarketPrice] AS [PrevCurrentMarketPrice]
+FROM [AutoT].[dbo].[Orders] [Ord]
+	LEFT JOIN [AutoT].[dbo].[Orders] [OrdP] ON [Ord].[PreviousOrderId] = [OrdP].[Id]
+WHERE 
+	[Ord].[Side] = 'Buy' AND
+	[Ord].[Status] = 'Executed' AND
+	--[CalculateRatioToCurrentPrice] IS NOT NULL AND
+	[OrdP].[OrderLevel] = 1 
+ORDER BY 
+	[Ord].[Id] DESC
+
+-----------------------------------------------------------
+
+SELECT 
+	[Symbol], 
+	COUNT (Id) AS [Count]
+FROM 
+	[AutoT].[dbo].[Orders]
+WHERE 
+	[Status] = 'Executed' AND
+	[OrderLevel] = 3
+GROUP BY 
+	 [Symbol]
+ORDER BY 
+	[Count] DESC
+
+-----------------------------------------------------------
+

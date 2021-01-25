@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "AutoTrader": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

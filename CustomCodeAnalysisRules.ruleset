@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RuleSet Name="StyleCop rules for Core Application" Description="Custom Rules" ToolsVersion="10.0">
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.CSharp.ReadabilityRules">
+  	<Rule Id="SA0001" Action="None" /> <!-- XML comment analysis is disabled due to project configuration. -->
+	<Rule Id="SA1005" Action="None" /> <!-- Single line comment should begin with a space. -->
+	<Rule Id="SA1101" Action="None" /> <!-- Prefix local calls with this. -->
+	<Rule Id="SA1200" Action="None" /> <!-- Using directive should appear within a namespace declaration. -->
+	<Rule Id="SA1309" Action="None" /> <!-- Field '_xxx' should not begin with an underscore. -->
+	<Rule Id="SA1401" Action="None" /> <!-- Field should be private. -->
+	<Rule Id="SA1512" Action="None" /> <!-- Single-line comments should not be followed by blank line. -->
+	<Rule Id="SA1633" Action="None" /> <!-- The file header is missing or not located at the top of the file. -->
+	
+	<Rule Id="SA1000" Action="Error" /> <!-- The keyword 'if' should be followed by a space. -->
+	<Rule Id="SA1012" Action="Error" /> <!-- Opening brace should not be followed by a space. -->
+	<Rule Id="SA1013" Action="Error" /> <!-- Closing brace should not be preceded by a space. -->
+	<Rule Id="SA1003" Action="Error" /> <!-- Operator '=>' should be preceded and followed by whitespace. -->
+	<Rule Id="SA1004" Action="Error" /> <!-- Documentation line should begin with a space. -->
+	<Rule Id="SA1024" Action="Error" /> <!-- Colon should be preceded by a space. -->	
+	<Rule Id="SA1025" Action="Error" /> <!-- Code should not contain multiple whitespace characters in a row. -->
+	<Rule Id="SA1028" Action="Error" /> <!-- Code should not contain trailing whitespace. -->	
+	<Rule Id="SA1009" Action="Error" /> <!-- Closing parenthesis should not be preceded by a space. -->
+	<Rule Id="SA1107" Action="Error" /> <!-- Code should not contain multiple statements on one line. -->
+	<Rule Id="SA1111" Action="Error" /> <!-- Closing parenthesis should be on line of last parameter. -->	
+	<Rule Id="SA1116" Action="Error" /> <!-- The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines. -->	
+	<Rule Id="SA1122" Action="Error" /> <!-- Use string.Empty for empty strings. -->
+	<Rule Id="SA1137" Action="Error" /> <!-- Elements should have the same indentation. -->
+	<Rule Id="SA1202" Action="Error" /> <!-- Using directive for 'System...' should appear before Custom directives. -->
+	<Rule Id="SA1214" Action="Error" /> <!-- Readonly fields should appear before non-readonly fields. -->
+	<Rule Id="SA1208" Action="Error" /> <!-- Public members should come before private members. -->
+	<Rule Id="SA1303" Action="Error" /> <!-- Const field names should begin with upper-case letter. -->
+	<Rule Id="SA1306" Action="Error" /> <!-- Field 'Xxx' should begin with lower-case letter.-->
+	<Rule Id="SA1312" Action="Error" /> <!-- Variable names should begin with lower-case letter. -->
+	<Rule Id="SA1313" Action="Error" /> <!-- Parameter 'Xxx' should begin with lower-case letter. -->
+	<Rule Id="SA1413" Action="Error" /> <!-- Use trailing comma in multi-line initializers. -->
+	<Rule Id="SA1500" Action="Error" /> <!-- Braces for multi-line statements should not share line. -->
+	<Rule Id="SA1503" Action="Error" /> <!-- Braces should not be omitted. -->
+	<Rule Id="SA1505" Action="Error" /> <!-- An opening brace should not be followed by a blank line. -->
+	<Rule Id="SA1508" Action="Error" /> <!-- A closing brace should not be preceded by a blank line. -->
+	<Rule Id="SA1513" Action="Error" /> <!-- Closing brace should be followed by blank line. -->
+	<Rule Id="SA1611" Action="Error" /> <!-- The documentation for some parameter is missing -->
+	<Rule Id="SA1614" Action="Error" /> <!-- Element parameter documentation should have text. -->
+	<Rule Id="SA1616" Action="Error" /> <!-- Element return value documentation should have text. -->
+	<Rule Id="SA1622" Action="Error" /> <!-- Generic type parameter documentation should have text. -->
+	<Rule Id="SA1625" Action="Error" /> <!-- Element documentation should not be copied and pasted. -->
+	<Rule Id="SA1629" Action="Error" /> <!-- Documentation text should end with a period. -->
+	<Rule Id="SA1649" Action="Error" /> <!-- File name should match first type name. -->
+  </Rules>
+</RuleSet>   
