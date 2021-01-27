@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
+using AT.Business.Interfaces;
+using AT.Business.Services;
 using AT.Data;
-using AT.Worker.Interfaces;
-using AT.Worker.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,6 +58,8 @@ namespace AT.Worker
                     services.AddDbContext<SqlContext>(options => options.UseSqlServer(connection, x => x.MigrationsAssembly("AT.Data").EnableRetryOnFailure().CommandTimeout(180)));
 
                     services.AddTransient<ILoggerService, LoggerService>();
+                    services.AddTransient<IDbOrderService, DbOrderService>();
+                    services.AddTransient<IBitfinexService, BitfinexService>();
 
                     services.AddHostedService<Worker>();
                 });

@@ -3,14 +3,14 @@ using System.Net;
 using System.Net.Mail;
 using System.Reflection;
 using System.Threading.Tasks;
+using AT.Business.Interfaces;
+using AT.Common.Extensions;
 using AT.Data;
 using AT.Domain;
 using AT.Domain.Enums;
-using AT.Worker.Extensions;
-using AT.Worker.Interfaces;
 using Microsoft.Extensions.Configuration;
 
-namespace AT.Worker.Services
+namespace AT.Business.Services
 {
     /// <summary>LoggerService class.</summary>
     public class LoggerService : ILoggerService

@@ -14,7 +14,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CustomCodeAnalysisRules.ruleset = CustomCodeAnalysisRules.ruleset
 		Documents\How to install.txt = Documents\How to install.txt
 		SolutionInfo.proj = SolutionInfo.proj
+		Documents\SQL queries.txt = Documents\SQL queries.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AT.Business", "AT.Business\AT.Business.csproj", "{CD6664F1-A877-49E1-8947-60A1212DD187}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AT.Common", "AT.Common\AT.Common.csproj", "{1C665AED-C424-4FE7-984E-C454704C3461}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +39,14 @@ Global
 		{2BEF8B3F-2CB7-4C59-9518-14F395134966}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BEF8B3F-2CB7-4C59-9518-14F395134966}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BEF8B3F-2CB7-4C59-9518-14F395134966}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD6664F1-A877-49E1-8947-60A1212DD187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD6664F1-A877-49E1-8947-60A1212DD187}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD6664F1-A877-49E1-8947-60A1212DD187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD6664F1-A877-49E1-8947-60A1212DD187}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C665AED-C424-4FE7-984E-C454704C3461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C665AED-C424-4FE7-984E-C454704C3461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C665AED-C424-4FE7-984E-C454704C3461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C665AED-C424-4FE7-984E-C454704C3461}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

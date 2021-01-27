@@ -1,3 +1,4 @@
+
 SELECT 
 	[PH].*, [P].[Name] 
 FROM 
@@ -5,10 +6,11 @@ FROM
 INNER JOIN 
 	[AutoTrader].[dbo].[Pairs] [P]
 	ON [PH].[PairId] = [P].[Id]
+WHERE
+	[PH].[IsActive] = 1
 ORDER BY
 	[PH].[ExecutedSellOrderCount] DESC,
-	[PH].[ExecutedBuyOrderCount] DESC,
-	[PH].[IsActive]
+	[PH].[ExecutedBuyOrderCount] DESC
 	
 -------------------------------------------------
 

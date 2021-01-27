@@ -1,4 +1,4 @@
-﻿namespace AT.Domain.Models.Dtos
+﻿namespace AT.Business.Dtos
 {
     /// <summary>PairDto class.</summary>
     public class PairDto

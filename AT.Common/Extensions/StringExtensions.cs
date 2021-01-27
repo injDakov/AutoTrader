@@ -1,8 +1,20 @@
-﻿namespace AT.Worker.Extensions
+﻿namespace AT.Common.Extensions
 {
     /// <summary>StringExtensions class.</summary>
     public static class StringExtensions
     {
+        /// <summary>Converts string value to int.</summary>
+        /// <param name="str">The string.</param>
+        /// <returns>The int value.</returns>
+        public static int ConvertToInt(this string str)
+        {
+            int number = int.TryParse(str, out number) ? number : 0;
+
+            return number;
+
+            // add argument exception with param... to be active or not
+        }
+
         /// <summary>Converts string value to long.</summary>
         /// <param name="str">The string.</param>
         /// <returns>The long value.</returns>
@@ -11,16 +23,16 @@
             long number = long.TryParse(str, out number) ? number : 0;
 
             return number;
-
-            // add argument exception with param... to be active or not
         }
 
-        /// <summary>Converts string value to int.</summary>
+        /// <summary>Converts string value to decimal.</summary>
         /// <param name="str">The string.</param>
-        /// <returns>The int value.</returns>
-        public static int ConvertToInt(this string str)
+        /// <returns>The decimal value.</returns>
+        public static decimal ConvertToDecimal(this string str)
         {
-            int number = int.TryParse(str, out number) ? number : 0;
+            decimal number = decimal.TryParse(str, out number) ? number : 0;
+
+            number = decimal.TryParse(str.Replace('.', ','), out number) ? number : 0;
 
             return number;
         }

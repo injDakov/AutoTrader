@@ -1,4 +1,4 @@
-﻿namespace AT.Domain.Models
+﻿namespace AT.Business.Models
 {
     /// <summary>DetailedMessage class.</summary>
     public class DetailedMessage
