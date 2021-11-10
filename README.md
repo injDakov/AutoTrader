@@ -211,7 +211,7 @@ Waiting for the first friends! :)
 
 #### v1.4.2 Version
 
-**What's New**\
+**What's New**
 
 * Improved version of the Trade algorithm
 * Added Prices Queue included into prices calculation for the new orders 
@@ -220,7 +220,7 @@ Waiting for the first friends! :)
 * Extended the logging with Serilog
 * Improved code quality and documentation
 
-**How to update from the previous version**\
+**How to update from the previous version**
 
 * Stop the App
 * Replace the files with new ones
@@ -229,7 +229,7 @@ Waiting for the first friends! :)
 
 #### v1.3.5 Version
 
-**Minimum Viable Product**\
+**Minimum Viable Product**
 
 * Good enough version of the trading algorithm
 * Ability to self-configuration the pairs via the config file
