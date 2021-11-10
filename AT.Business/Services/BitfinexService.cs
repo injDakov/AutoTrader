@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace AT.Business.Services
 {
-    /// <summary>BitfinexService Class.</summary>
+    /// <summary>BitfinexService class.</summary>
     public class BitfinexService : IBitfinexService
     {
         private readonly string _assemblyVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -24,6 +24,8 @@ namespace AT.Business.Services
         private readonly IConfiguration _configuration;
         private readonly ILoggerService _loggerService;
         private readonly IDbOrderService _dbOrderService;
+
+        private readonly Models.AppSettings.AppSettings _appSettings;
 
         /// <summary>Initializes a new instance of the <see cref="BitfinexService" /> class.</summary>
         /// <param name="configuration">The configuration.</param>
@@ -35,18 +37,20 @@ namespace AT.Business.Services
             _loggerService = loggerService;
             _dbOrderService = dbOrderService;
 
+            _appSettings = _configuration.GetSection("AppSettings").Get<Models.AppSettings.AppSettings>();
+
             BitfinexClient.SetDefaultOptions(new BitfinexClientOptions
             {
                 ApiCredentials =
                       new ApiCredentials(
-                          _configuration["BitfinexClient:Key"],
-                          _configuration["BitfinexClient:Secret"]),
+                          _appSettings.BitfinexClient.Key,
+                          _appSettings.BitfinexClient.Secret),
             });
 
             _bitfinexClient = new BitfinexClient();
         }
 
-        /// <summary>Gets the bitfinex active orders asynchronous.</summary>
+        /// <summary>Gets the Bitfinex active orders asynchronous.</summary>
         /// <param name="stoppingToken">The stopping token.</param>
         /// <returns>Task of IEnumerable of BitfinexOrder.</returns>
         /// <exception cref="Exception">processed.</exception>
@@ -64,12 +68,12 @@ namespace AT.Business.Services
 
                     if (activeOrdersRequestMaxTry == 0)
                     {
-                        await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexActiveOrdersAsync()", activeOrdersRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexActiveOrdersAsync()", activeOrdersRequest.Error.Message));
 
                         throw new Exception("processed");
                     }
 
-                    await Task.Delay(1000 * 20 * 1, stoppingToken);
+                    await AddDelayAfterOperation(stoppingToken);
                 }
                 else
                 {
@@ -79,7 +83,7 @@ namespace AT.Business.Services
             while (true);
         }
 
-        /// <summary>Gets the bitfinex prices asynchronous.</summary>
+        /// <summary>Gets the Bitfinex prices asynchronous.</summary>
         /// <param name="pairs">The pairs.</param>
         /// <param name="stoppingToken">The stopping token.</param>
         /// <returns>Task of IEnumerable of BitfinexSymbolOverview.</returns>
@@ -98,12 +102,12 @@ namespace AT.Business.Services
 
                     if (pricesRequestMaxTry == 0)
                     {
-                        await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexPricesAsync()", pricesRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexPricesAsync()", pricesRequest.Error.Message));
 
                         throw new Exception("processed");
                     }
 
-                    await Task.Delay(1000 * 20 * 1, stoppingToken);
+                    await AddDelayAfterOperation(stoppingToken);
                 }
                 else
                 {
@@ -113,7 +117,7 @@ namespace AT.Business.Services
             while (true);
         }
 
-        /// <summary>Gets the bitfinex order history asynchronous.</summary>
+        /// <summary>Gets the Bitfinex order history asynchronous.</summary>
         /// <param name="pair">The pair.</param>
         /// <param name="activeOrderId">The active order identifier.</param>
         /// <param name="stoppingToken">The stopping token.</param>
@@ -134,12 +138,12 @@ namespace AT.Business.Services
 
                     if (ordersHistoryRequestMaxTry == 0)
                     {
-                        await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexOrderHistoryAsync()", ordersHistoryRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexOrderHistoryAsync()", ordersHistoryRequest.Error.Message));
 
                         throw new Exception("processed");
                     }
 
-                    await Task.Delay(1000 * 20 * 1, stoppingToken);
+                    await AddDelayAfterOperation(stoppingToken);
                 }
                 else
                 {
@@ -149,12 +153,12 @@ namespace AT.Business.Services
 
                         if (ordersHistoryNullMaxTry == 0)
                         {
-                            await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexOrderHistoryAsync()", "Null"));
+                            await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexOrderHistoryAsync()", "Null"));
 
                             return null;
                         }
 
-                        await Task.Delay(1000 * 20 * 1, stoppingToken);
+                        await AddDelayAfterOperation(stoppingToken);
                     }
                     else
                     {
@@ -186,19 +190,24 @@ namespace AT.Business.Services
 
                     if (placeOrderRequestMaxTry == 0 || placeOrderRequest.Error.Message.Contains("not enough exchange balance for"))
                     {
-                        await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, PlaceNewOrderAsync()", placeOrderRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, PlaceNewOrderAsync()", placeOrderRequest.Error.Message));
 
                         return null;
                     }
 
-                    await Task.Delay(1000 * 20 * 1, stoppingToken);
+                    await AddDelayAfterOperation(stoppingToken);
                 }
                 else
                 {
-                    return await _dbOrderService.AddDbOrder(placeOrderRequest.Data, orderDB);
+                    return await _dbOrderService.AddDbOrderAsync(placeOrderRequest.Data, orderDB);
                 }
             }
             while (true);
+        }
+
+        private async Task AddDelayAfterOperation(CancellationToken stoppingToken)
+        {
+            await Task.Delay(1000 * 20 * 1, stoppingToken);
         }
     }
 }

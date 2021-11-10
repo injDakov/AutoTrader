@@ -16,6 +16,7 @@ namespace AT.Data
             if (pendingMigrations.Any())
             {
                 var migrator = context.Database.GetService<IMigrator>();
+
                 foreach (var targetMigration in pendingMigrations)
                 {
                     try
@@ -35,7 +36,6 @@ namespace AT.Data
         /// <param name="context">The context.</param>
         public void Seed(SqlContext context)
         {
-            // TODO
         }
     }
 }

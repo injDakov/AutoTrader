@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
-using AT.Business.Dtos;
 using AT.Business.Interfaces;
 using AT.Common.Extensions;
 using AT.Data;
@@ -15,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace AT.Business.Services
 {
-    /// <summary>DbOrderService Class.</summary>
+    /// <summary>DbOrderService class.</summary>
     public class DbOrderService : IDbOrderService
     {
         private readonly string _assemblyVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -23,6 +22,8 @@ namespace AT.Business.Services
         private readonly IConfiguration _configuration;
         private readonly ILoggerService _loggerService;
         private readonly SqlContext _sqlContext;
+
+        private readonly Models.AppSettings.AppSettings _appSettings;
 
         /// <summary>Initializes a new instance of the <see cref="DbOrderService" /> class.</summary>
         /// <param name="configuration">The configuration.</param>
@@ -33,16 +34,21 @@ namespace AT.Business.Services
             _configuration = configuration;
             _loggerService = loggerService;
             _sqlContext = sqlContext;
+
+            _appSettings = _configuration.GetSection("AppSettings").Get<Models.AppSettings.AppSettings>();
         }
 
         /// <summary>Updates the database pairs.</summary>
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
         /// <exception cref="Exception">Exception.</exception>
         /// <returns>Task.</returns>
-        public async Task UpdateDbPairs()
+        public async Task UpdateDbPairsAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var configPairs = _configuration.GetSection("Pairs").Get<List<PairDto>>();
+                var configPairs = _appSettings.Pairs;
+                var sellLevels = _appSettings.ProfitPercents.SellLevels;
+                var buyLevels = _appSettings.ProfitPercents.BuyLevels;
 
                 if (configPairs.GroupBy(p => p.Name).Any(x => x.Count() > 1))
                 {
@@ -68,6 +74,13 @@ namespace AT.Business.Services
                 if (configPairs.Any(p => p.MaxOrderLevel < 1))
                 {
                     string msg = $"The pair {configPairs.FirstOrDefault(p => p.MaxOrderLevel < 1).Name} has value smaller than 1 for MaxOrderLevel. Please check and restart the service!";
+
+                    throw new Exception(msg);
+                }
+
+                if (configPairs.Any(p => p.MaxOrderLevel > sellLevels.Length || p.MaxOrderLevel > buyLevels.Length))
+                {
+                    string msg = $"The pair {configPairs.FirstOrDefault(p => p.MaxOrderLevel > sellLevels.Length || p.MaxOrderLevel > buyLevels.Length).Name} has value for MaxOrderLevel that was bigger than BuyLevels/SellLevels. Please check and restart the service!";
 
                     throw new Exception(msg);
                 }
@@ -150,10 +163,6 @@ namespace AT.Business.Services
                             dbPair.IsActive = pair.IsActive;
 
                             if (!pair.IsActive)
-                            //{
-                            //    AddPairHistory(dbPair);
-                            //}
-                            //else
                             {
                                 DeactivatePairAndHistory(dbPair);
                             }
@@ -165,20 +174,20 @@ namespace AT.Business.Services
             }
             catch (Exception ex)
             {
-                await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, UpdateDbPairs()", ex.Message));
+                await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, UpdateDbPairs()", ex.Message));
 
-                await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, UpdateDbPairs()", "The service has stopped incidentally."));
+                await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, UpdateDbPairs()", "The service has stopped incidentally."));
 
-                throw ex;
+                throw;
             }
         }
 
         /// <summary>Adds the database order.</summary>
-        /// <param name="bitfinexPlacedOrder">The bitfinex placed order.</param>
+        /// <param name="bitfinexPlacedOrder">The Bitfinex placed order.</param>
         /// <param name="dbOrder">The database order.</param>
         /// <returns>Task of Order.</returns>
         /// <exception cref="Exception">processed.</exception>
-        public async Task<Order> AddDbOrder(BitfinexPlacedOrder bitfinexPlacedOrder, Order dbOrder)
+        public async Task<Order> AddDbOrderAsync(BitfinexPlacedOrder bitfinexPlacedOrder, Order dbOrder)
         {
             try
             {
@@ -221,7 +230,7 @@ namespace AT.Business.Services
             }
             catch (Exception ex)
             {
-                await _loggerService.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, AddDbOrder()", ex.Message));
+                await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, AddDbOrder()", ex.Message));
 
                 throw new Exception("processed");
             }

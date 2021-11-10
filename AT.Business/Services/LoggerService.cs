@@ -4,7 +4,7 @@ using System.Net.Mail;
 using System.Reflection;
 using System.Threading.Tasks;
 using AT.Business.Interfaces;
-using AT.Common.Extensions;
+using AT.Business.Models.AppSettings;
 using AT.Data;
 using AT.Domain;
 using AT.Domain.Enums;
@@ -20,6 +20,8 @@ namespace AT.Business.Services
         private readonly SqlContext _context;
         private readonly IConfiguration _configuration;
 
+        private readonly AppSettings _appSettings;
+
         /// <summary>Initializes a new instance of the <see cref="LoggerService" /> class.</summary>
         /// <param name="context">The context.</param>
         /// <param name="configuration">The configuration.</param>
@@ -27,25 +29,27 @@ namespace AT.Business.Services
         {
             _context = context;
             _configuration = configuration;
+
+            _appSettings = _configuration.GetSection("AppSettings").Get<AppSettings>();
         }
 
         /// <summary>Creates the log.</summary>
         /// <param name="log">The log.</param>
         /// <returns>The task.</returns>
-        public async Task CreateLog(Log log)
+        public async Task CreateLogAsync(Log log)
         {
             try
             {
 #if DEBUG
                 log.Action = $"[D] {log.Action}";
 #endif
-                await CreateDbLog(log);
+                await CreateDbLogAsync(log);
 
-                await WriteLogInConsole(log);
+                WriteLogInConsole(log);
 
-                if (_configuration["SmtpServerSettings:IsActive"].ConvertToBoolean())
+                if (_appSettings.SmtpServer.IsActive)
                 {
-                    await SendEmail(log);
+                    await SendEmailAsync(log);
                 }
             }
             catch (Exception ex)
@@ -58,7 +62,7 @@ namespace AT.Business.Services
             }
         }
 
-        private async Task CreateDbLog(Log log)
+        private async Task CreateDbLogAsync(Log log)
         {
             try
             {
@@ -75,7 +79,7 @@ namespace AT.Business.Services
             }
         }
 
-        private async Task WriteLogInConsole(Log log)
+        private void WriteLogInConsole(Log log)
         {
             try
             {
@@ -110,23 +114,19 @@ namespace AT.Business.Services
             }
             catch (Exception ex)
             {
-                var exLog = new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, WriteLogInConsole", ex.Message);
-                await CreateDbLog(exLog);
             }
         }
 
-        private async Task SendEmail(Log log)
+        private async Task SendEmailAsync(Log log)
         {
             try
             {
                 SmtpClient smtp = new SmtpClient
                 {
-                    Host = _configuration["SmtpServerSettings:Host"],
-                    Port = _configuration["SmtpServerSettings:Port"].ConvertToInt(),
+                    Host = _appSettings.SmtpServer.Host,
+                    Port = _appSettings.SmtpServer.Port,
                     UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(
-                                            _configuration["SmtpServerSettings:Username"],
-                                            _configuration["SmtpServerSettings:Password"]),
+                    Credentials = new NetworkCredential(_appSettings.SmtpServer.Username, _appSettings.SmtpServer.Password),
                     EnableSsl = true,
 
                     DeliveryMethod = SmtpDeliveryMethod.Network,
@@ -134,20 +134,20 @@ namespace AT.Business.Services
 
                 MailMessage message = new MailMessage
                 {
-                    From = new MailAddress(_configuration["SmtpServerSettings:Username"], "Auto Trader"),
+                    From = new MailAddress(_appSettings.SmtpServer.Username, "Auto Trader"),
                     IsBodyHtml = true,
 
                     Subject = $"{log.Type} - {log.Action} - {log.Message}",
                     Body = log.Message + Environment.NewLine + log.DetailedMessage,
                 };
-                message.To.Add(_configuration["SmtpServerSettings:Recipients"]);
+                message.To.Add(_appSettings.SmtpServer.Recipients);
 
                 smtp.Send(message);
             }
             catch (Exception ex)
             {
                 var exLog = new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, SendEmail", ex.Message);
-                await CreateDbLog(exLog);
+                await CreateDbLogAsync(exLog);
             }
         }
     }

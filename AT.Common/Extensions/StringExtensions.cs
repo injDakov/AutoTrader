@@ -1,4 +1,7 @@
-﻿namespace AT.Common.Extensions
+﻿using System;
+using System.Globalization;
+
+namespace AT.Common.Extensions
 {
     /// <summary>StringExtensions class.</summary>
     public static class StringExtensions
@@ -8,11 +11,9 @@
         /// <returns>The int value.</returns>
         public static int ConvertToInt(this string str)
         {
-            int number = int.TryParse(str, out number) ? number : 0;
+            int number = int.TryParse(str, out number) ? number : throw new FormatException($"The value '{str}' is not a valid integer number.");
 
             return number;
-
-            // add argument exception with param... to be active or not
         }
 
         /// <summary>Converts string value to long.</summary>
@@ -20,7 +21,7 @@
         /// <returns>The long value.</returns>
         public static long ConvertToLong(this string str)
         {
-            long number = long.TryParse(str, out number) ? number : 0;
+            long number = long.TryParse(str, out number) ? number : throw new FormatException($"The value '{str}' is not a valid long number.");
 
             return number;
         }
@@ -30,11 +31,16 @@
         /// <returns>The decimal value.</returns>
         public static decimal ConvertToDecimal(this string str)
         {
-            decimal number = decimal.TryParse(str, out number) ? number : 0;
+            try
+            {
+                decimal number = Convert.ToDecimal(str, CultureInfo.InvariantCulture);
 
-            number = decimal.TryParse(str.Replace('.', ','), out number) ? number : 0;
-
-            return number;
+                return number;
+            }
+            catch
+            {
+                throw new FormatException($"The value '{str}' is not a valid decimal number.");
+            }
         }
 
         /// <summary>Converts string value to boolean.</summary>
@@ -42,16 +48,12 @@
         /// <returns>The boolean value. </returns>
         public static bool ConvertToBoolean(this string str)
         {
-            switch (str.ToLower())
+            return str.ToLower() switch
             {
-                case "1":
-                case "yes":
-                case "true":
-                    return true;
-
-                default:
-                    return false;
-            }
+                "1" or "yes" or "true" => true,
+                "0" or "no" or "false" => false,
+                _ => throw new FormatException($"The value '{str}' is not a valid boolean value."),
+            };
         }
     }
 }
