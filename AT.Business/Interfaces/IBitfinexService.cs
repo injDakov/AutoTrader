@@ -6,21 +6,21 @@ using Bitfinex.Net.Objects;
 
 namespace AT.Business.Interfaces
 {
-    /// <summary>IBitfinexService Interface.</summary>
+    /// <summary>IBitfinexService interface.</summary>
     public interface IBitfinexService
     {
-        /// <summary>Gets the bitfinex active orders asynchronous.</summary>
+        /// <summary>Gets the Bitfinex active orders asynchronous.</summary>
         /// <param name="stoppingToken">The stopping token.</param>
         /// <returns>Task of IEnumerable of BitfinexOrder.</returns>
         Task<IEnumerable<BitfinexOrder>> GetBitfinexActiveOrdersAsync(CancellationToken stoppingToken);
 
-        /// <summary>Gets the bitfinex prices asynchronous.</summary>
+        /// <summary>Gets the Bitfinex prices asynchronous.</summary>
         /// <param name="pairs">The pairs.</param>
         /// <param name="stoppingToken">The stopping token.</param>
         /// <returns>Task of IEnumerable of BitfinexSymbolOverview.</returns>
         Task<IEnumerable<BitfinexSymbolOverview>> GetBitfinexPricesAsync(IEnumerable<Pair> pairs, CancellationToken stoppingToken);
 
-        /// <summary>Gets the bitfinex order history asynchronous.</summary>
+        /// <summary>Gets the Bitfinex order history asynchronous.</summary>
         /// <param name="pair">The pair.</param>
         /// <param name="activeOrderId">The active order identifier.</param>
         /// <param name="stoppingToken">The stopping token.</param>

@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AT.Business.Interfaces;
 using AT.Business.Models;
-using AT.Common.Extensions;
+using AT.Business.Models.AppSettings;
 using AT.Data;
 using AT.Domain;
 using AT.Domain.Enums;
@@ -25,6 +26,8 @@ namespace AT.Worker
         private readonly IServiceProvider _services;
         private readonly IConfiguration _configuration;
 
+        private readonly AppSettings _appSettings;
+
         /// <summary>Initializes a new instance of the <see cref="Worker" /> class.</summary>
         /// <param name="services">The services.</param>
         /// <param name="configuration">The configuration.</param>
@@ -32,6 +35,8 @@ namespace AT.Worker
         {
             _services = services;
             _configuration = configuration;
+
+            _appSettings = _configuration.GetSection("AppSettings").Get<AppSettings>();
         }
 
         /// <summary>Triggered when the application host is ready to start the service.</summary>
@@ -44,9 +49,9 @@ namespace AT.Worker
                 var loggerService = scope.ServiceProvider.GetRequiredService<ILoggerService>();
                 var dbOrderService = scope.ServiceProvider.GetRequiredService<IDbOrderService>();
 
-                await loggerService.CreateLog(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, StartAsync", "The service was started."));
+                await loggerService.CreateLogAsync(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, StartAsync", "The service was started."));
 
-                await dbOrderService.UpdateDbPairs();
+                await dbOrderService.UpdateDbPairsAsync(cancellationToken);
             }
 
             await base.StartAsync(cancellationToken);
@@ -61,7 +66,7 @@ namespace AT.Worker
             {
                 var loggerService = scope.ServiceProvider.GetRequiredService<ILoggerService>();
 
-                await loggerService.CreateLog(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, StopAsync", "The service was stopped."));
+                await loggerService.CreateLogAsync(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, StopAsync", "The service was stopped."));
             }
 
             await base.StopAsync(cancellationToken);
@@ -77,9 +82,12 @@ namespace AT.Worker
         /// <returns>The task.</returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var pricesQueue = new Queue<IEnumerable<BitfinexSymbolOverview>>();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 var stopWatch = new System.Diagnostics.Stopwatch();
+
                 stopWatch.Start();
 
                 try
@@ -90,26 +98,11 @@ namespace AT.Worker
                     var loggerService = scope.ServiceProvider.GetRequiredService<ILoggerService>();
                     var bitfinexService = scope.ServiceProvider.GetRequiredService<IBitfinexService>();
 
-                    decimal percentSellProfitLevel1 = _configuration["ProfitPercents:SellLevel1"].ConvertToDecimal();
-                    decimal percentBuyProfitLevel1 = _configuration["ProfitPercents:BuyLevel1"].ConvertToDecimal();
+                    var sellLevels = _appSettings.ProfitPercents.SellLevels;
 
-                    decimal percentSellProfitLevel2 = _configuration["ProfitPercents:SellLevel2"].ConvertToDecimal();
-                    decimal percentBuyProfitLevel2 = _configuration["ProfitPercents:BuyLevel2"].ConvertToDecimal();
+                    var buyLevels = _appSettings.ProfitPercents.BuyLevels;
 
-                    decimal percentSellProfitLevel3 = _configuration["ProfitPercents:SellLevel3"].ConvertToDecimal();
-                    decimal percentBuyProfitLevel3 = _configuration["ProfitPercents:BuyLevel3"].ConvertToDecimal();
-
-                    decimal percentSellProfitLevel4 = _configuration["ProfitPercents:SellLevel4"].ConvertToDecimal();
-                    decimal percentBuyProfitLevel4 = _configuration["ProfitPercents:BuyLevel4"].ConvertToDecimal();
-
-                    if (percentSellProfitLevel1 == 0 ||
-                        percentBuyProfitLevel1 == 0 ||
-                        percentSellProfitLevel2 == 0 ||
-                        percentBuyProfitLevel2 == 0 ||
-                        percentSellProfitLevel3 == 0 ||
-                        percentBuyProfitLevel3 == 0 ||
-                        percentSellProfitLevel4 == 0 ||
-                        percentBuyProfitLevel4 == 0)
+                    if (sellLevels.Any(sl => sl == 0) || buyLevels.Any(bl => bl == 0))
                     {
                         string msg = $"Some of ProfitPercents has an invalid value. Please check and restart the service!";
 
@@ -122,9 +115,9 @@ namespace AT.Worker
 
                     var activeDbOrders = sqlContext.Orders.Where(o => o.Status == OrderStatus.Active.ToString());
 
-                    if (DateTime.Now.Minute == 0)
+                    if (DateTime.Now.Hour % _appSettings.HealthCheckIntervalInHours == 0 && DateTime.Now.Minute == 0)
                     {
-                        await loggerService.CreateLog(
+                        await loggerService.CreateLogAsync(
                             new Log(
                                 LogType.Info,
                                 $"AutoTrader v{_assemblyVersion}, ExecuteAsync",
@@ -134,15 +127,25 @@ namespace AT.Worker
 
                     var pricesRequest = await bitfinexService.GetBitfinexPricesAsync(pairs, stoppingToken);
 
+                    pricesQueue.Enqueue(pricesRequest);
+
+                    if (pricesQueue.Count > _appSettings.PricesQueueSize)
+                    {
+                        pricesQueue.Dequeue();
+                    }
+
                     foreach (var pair in pairs)
                     {
                         var lastPrice = pricesRequest.FirstOrDefault(d => d.Symbol.ToLower() == $"t{pair.Name}".ToLower()).LastPrice;
+                        var previousPrice = pricesQueue.Peek().FirstOrDefault(d => d.Symbol.ToLower() == $"t{pair.Name}".ToLower()).LastPrice;
 
                         var activeBitfinexOrdersForThisPair = activeBitfinexOrders.Where(o => o.Symbol.ToLower() == $"t{pair.Name}".ToLower()).ToList();
 
                         var activeDbOrdersForThisPair = activeDbOrders.Where(o => o.Symbol.ToLower() == $"{pair.Name}".ToLower()).ToList();
 
-                        int activeBitfinexOrdersCount = activeBitfinexOrdersForThisPair.Count(oB => Math.Abs(oB.Amount) == pair.OrderAmount || activeDbOrdersForThisPair.Any(o => o.OrderId == oB.Id));
+                        var activeDbOrdersForThisPairCount = activeDbOrdersForThisPair.Count;
+
+                        int activeBitfinexOrdersCount = activeBitfinexOrdersForThisPair.Count(oB => Math.Abs(oB.AmountOriginal) == pair.OrderAmount || activeDbOrdersForThisPair.Any(o => o.OrderId == oB.Id));
 
                         foreach (var activeDbOrder in activeDbOrdersForThisPair)
                         {
@@ -152,20 +155,21 @@ namespace AT.Worker
                             {
                                 var currentOrderHistory = await bitfinexService.GetBitfinexOrderHistoryAsync(pair, activeDbOrder.OrderId, stoppingToken);
 
-                                //var currentOrderHistory = bitfinexOrderHistoryForThisPair.FirstOrDefault(o => o.Id == activeDbOrder.OrderId);
-
                                 if (currentOrderHistory == null)
                                 {
                                     activeDbOrder.Status = OrderStatus.Unknown.ToString();
 
-                                    await loggerService.CreateLog(new Log(LogType.Warning, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (orderHistory == null)", "activeOrderFromDB.Status = OrderStatus.Unknown.ToString()"));
+                                    await loggerService.CreateLogAsync(new Log(LogType.Warning, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (currentOrderHistory == null)", "activeOrderFromDB.Status = OrderStatus.Unknown.ToString()"));
                                 }
                                 else
                                 {
-                                    // Should be update all properties, just in case.
                                     activeDbOrder.Status = currentOrderHistory.Status.ToString();
 
-                                    if (currentOrderHistory.Status == OrderStatus.Executed)
+                                    if (currentOrderHistory.Status == OrderStatus.Canceled)
+                                    {
+                                        activeDbOrdersForThisPairCount -= 1;
+                                    }
+                                    else if (currentOrderHistory.Status == OrderStatus.Executed)
                                     {
                                         if (currentOrderHistory.PriceAverage != null)
                                         {
@@ -174,37 +178,24 @@ namespace AT.Worker
                                             decimal profitRatioBuy = 0;
                                             decimal profitRatioSell = 0;
 
-                                            switch (activeDbOrder.OrderLevel)
-                                            {
-                                                case 1:
-                                                default:
-                                                    buyPrice = Math.Min((decimal)currentOrderHistory.PriceAverage * percentBuyProfitLevel1, lastPrice * percentBuyProfitLevel1);
-                                                    sellPrice = Math.Max((decimal)currentOrderHistory.PriceAverage * percentSellProfitLevel1, lastPrice * percentSellProfitLevel1);
-                                                    profitRatioBuy = percentBuyProfitLevel1;
-                                                    profitRatioSell = percentSellProfitLevel1;
-                                                    break;
+                                            buyPrice = new List<decimal>()
+                                                            {
+                                                                (decimal)currentOrderHistory.PriceAverage * buyLevels[activeDbOrder.OrderLevel - 1],
+                                                                lastPrice * buyLevels[activeDbOrder.OrderLevel - 1],
+                                                                previousPrice * buyLevels[activeDbOrder.OrderLevel - 1],
+                                                            }
+                                                            .Min();
 
-                                                case 2:
-                                                    buyPrice = Math.Min((decimal)currentOrderHistory.PriceAverage * percentBuyProfitLevel2, lastPrice * percentBuyProfitLevel2);
-                                                    sellPrice = Math.Max((decimal)currentOrderHistory.PriceAverage * percentSellProfitLevel2, lastPrice * percentSellProfitLevel2);
-                                                    profitRatioBuy = percentBuyProfitLevel2;
-                                                    profitRatioSell = percentSellProfitLevel2;
-                                                    break;
+                                            sellPrice = new List<decimal>()
+                                                            {
+                                                                (decimal)currentOrderHistory.PriceAverage * sellLevels[activeDbOrder.OrderLevel - 1],
+                                                                lastPrice * sellLevels[activeDbOrder.OrderLevel - 1],
+                                                                previousPrice * sellLevels[activeDbOrder.OrderLevel - 1],
+                                                            }
+                                                            .Max();
 
-                                                case 3:
-                                                    buyPrice = Math.Min((decimal)currentOrderHistory.PriceAverage * percentBuyProfitLevel3, lastPrice * percentBuyProfitLevel3);
-                                                    sellPrice = Math.Max((decimal)currentOrderHistory.PriceAverage * percentSellProfitLevel3, lastPrice * percentSellProfitLevel3);
-                                                    profitRatioBuy = percentBuyProfitLevel3;
-                                                    profitRatioSell = percentSellProfitLevel3;
-                                                    break;
-
-                                                case 4:
-                                                    buyPrice = Math.Min((decimal)currentOrderHistory.PriceAverage * percentBuyProfitLevel4, lastPrice * percentBuyProfitLevel4);
-                                                    sellPrice = Math.Max((decimal)currentOrderHistory.PriceAverage * percentSellProfitLevel4, lastPrice * percentSellProfitLevel4);
-                                                    profitRatioBuy = percentBuyProfitLevel4;
-                                                    profitRatioSell = percentSellProfitLevel4;
-                                                    break;
-                                            }
+                                            profitRatioBuy = buyLevels[activeDbOrder.OrderLevel - 1];
+                                            profitRatioSell = sellLevels[activeDbOrder.OrderLevel - 1];
 
                                             var orderDB = new Order
                                             {
@@ -217,7 +208,7 @@ namespace AT.Worker
 
                                             if (currentOrderHistory.AmountOriginal < 0)
                                             {
-                                                // set order for buy
+                                                // Place order for buy.
 
                                                 orderDB.ProfitRatio = profitRatioBuy;
 
@@ -246,17 +237,12 @@ namespace AT.Worker
 
                                                     activeBitfinexOrdersCount += 1;
 
-                                                    await loggerService.CreateLog(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (orderHistory.AmountOriginal < 0)", $"Place Buy ({pair.Name}) after Sell order."));
-                                                }
-                                                else
-                                                {
-                                                    continue;
+                                                    await loggerService.CreateLogAsync(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (orderHistory.AmountOriginal < 0)", $"Place Buy ({pair.Name}) after Sell order."));
                                                 }
                                             }
-
-                                            if (currentOrderHistory.AmountOriginal > 0)
+                                            else if (currentOrderHistory.AmountOriginal > 0)
                                             {
-                                                // set order for sell
+                                                // Place order for sell.
 
                                                 orderDB.ProfitRatio = profitRatioSell;
 
@@ -285,11 +271,7 @@ namespace AT.Worker
 
                                                     activeBitfinexOrdersCount += 1;
 
-                                                    await loggerService.CreateLog(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (orderHistory.AmountOriginal > 0)", $"Place Sell ({pair.Name}) after Buy order."));
-                                                }
-                                                else
-                                                {
-                                                    continue;
+                                                    await loggerService.CreateLogAsync(new Log(LogType.Info, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (orderHistory.AmountOriginal > 0)", $"Place Sell ({pair.Name}) after Buy order."));
                                                 }
                                             }
                                         }
@@ -298,39 +280,29 @@ namespace AT.Worker
                                     activeDbOrder.ExecutedDate = currentOrderHistory.TimestampUpdated;
                                 }
 
-                                await sqlContext.SaveChangesAsync();
+                                await sqlContext.SaveChangesAsync(stoppingToken);
                             }
                         }
 
-                        if (pair.MaxOrderLevel > activeDbOrdersForThisPair.Count() && pair.MaxOrderLevel > activeBitfinexOrdersCount)
+                        if (pair.MaxOrderLevel > activeDbOrdersForThisPairCount && pair.MaxOrderLevel > activeBitfinexOrdersCount)
                         {
+                            var currentOrderLevel = activeDbOrdersForThisPairCount + 1;
+
                             var orderDB = new Order
                             {
-                                OrderLevel = activeDbOrdersForThisPair.Count() + 1,
+                                OrderLevel = currentOrderLevel,
                                 CurrentMarketPrice = lastPrice,
+                                ProfitRatio = sellLevels[currentOrderLevel],
                             };
 
-                            switch (orderDB.OrderLevel)
-                            {
-                                case 1:
-                                default:
-                                    orderDB.ProfitRatio = percentSellProfitLevel1;
-                                    break;
+                            var sellPrice = new List<decimal>()
+                                                {
+                                                        lastPrice * (decimal)orderDB.ProfitRatio,
+                                                        previousPrice * (decimal)orderDB.ProfitRatio,
+                                                }
+                                                    .Max();
 
-                                case 2:
-                                    orderDB.ProfitRatio = percentSellProfitLevel2;
-                                    break;
-
-                                case 3:
-                                    orderDB.ProfitRatio = percentSellProfitLevel3;
-                                    break;
-
-                                case 4:
-                                    orderDB.ProfitRatio = percentSellProfitLevel4;
-                                    break;
-                            }
-
-                            var newOrder = await bitfinexService.PlaceNewOrderAsync(orderDB, pair, OrderSide.Sell, lastPrice * (decimal)orderDB.ProfitRatio, stoppingToken);
+                            var newOrder = await bitfinexService.PlaceNewOrderAsync(orderDB, pair, OrderSide.Sell, sellPrice, stoppingToken);
 
                             if (newOrder != null)
                             {
@@ -341,11 +313,7 @@ namespace AT.Worker
                                     JsonConvert.SerializeObject(
                                         new DetailedMessage { NewOrder = JsonConvert.SerializeObject(newOrder, Formatting.Indented) }, Formatting.Indented));
 
-                                await loggerService.CreateLog(log);
-                            }
-                            else
-                            {
-                                continue;
+                                await loggerService.CreateLogAsync(log);
                             }
                         }
                     }
@@ -359,25 +327,30 @@ namespace AT.Worker
                         var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
                         var logger = scope.ServiceProvider.GetRequiredService<ILoggerService>();
 
-                        await logger.CreateLog(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (Main Try)", ex.Message));
+                        await logger.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, ExecuteAsync (Main Try)", ex.Message));
                     }
                 }
 
                 stopWatch.Stop();
 
-                int timeToNextIteration = 1000 * 60 * 1;
-
-                if (stopWatch.ElapsedMilliseconds > timeToNextIteration)
-                {
-                    timeToNextIteration = 0;
-                }
-                else
-                {
-                    timeToNextIteration -= (int)stopWatch.ElapsedMilliseconds;
-                }
-
-                await Task.Delay(timeToNextIteration, stoppingToken);
+                await AddDelayBeforeNextIteration(stopWatch.ElapsedMilliseconds, stoppingToken);
             }
+        }
+
+        private async Task AddDelayBeforeNextIteration(long elapsedMilliseconds, CancellationToken stoppingToken)
+        {
+            int timeToNextIteration = 1000 * 60 * 1;
+
+            if (elapsedMilliseconds > timeToNextIteration)
+            {
+                timeToNextIteration = 0;
+            }
+            else
+            {
+                timeToNextIteration -= (int)elapsedMilliseconds;
+            }
+
+            await Task.Delay(timeToNextIteration, stoppingToken);
         }
     }
 }

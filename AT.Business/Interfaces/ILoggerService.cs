@@ -9,6 +9,6 @@ namespace AT.Business.Interfaces
         /// <summary>Creates the log.</summary>
         /// <param name="log">The log.</param>
         /// <returns>Task.</returns>
-        Task CreateLog(Log log);
+        Task CreateLogAsync(Log log);
     }
 }

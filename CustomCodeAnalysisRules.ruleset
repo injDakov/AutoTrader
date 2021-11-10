@@ -9,6 +9,7 @@
 	<Rule Id="SA1401" Action="None" /> <!-- Field should be private. -->
 	<Rule Id="SA1512" Action="None" /> <!-- Single-line comments should not be followed by blank line. -->
 	<Rule Id="SA1633" Action="None" /> <!-- The file header is missing or not located at the top of the file. -->
+	<Rule Id="SA1600" Action="None" /> <!-- Elements should be documented. -->	
 	
 	<Rule Id="SA1000" Action="Error" /> <!-- The keyword 'if' should be followed by a space. -->
 	<Rule Id="SA1012" Action="Error" /> <!-- Opening brace should not be followed by a space. -->
@@ -37,6 +38,7 @@
 	<Rule Id="SA1505" Action="Error" /> <!-- An opening brace should not be followed by a blank line. -->
 	<Rule Id="SA1508" Action="Error" /> <!-- A closing brace should not be preceded by a blank line. -->
 	<Rule Id="SA1513" Action="Error" /> <!-- Closing brace should be followed by blank line. -->
+	<Rule Id="SA1516" Action="Error" /> <!-- Elements should be separated by blank line. -->
 	<Rule Id="SA1611" Action="Error" /> <!-- The documentation for some parameter is missing -->
 	<Rule Id="SA1614" Action="Error" /> <!-- Element parameter documentation should have text. -->
 	<Rule Id="SA1616" Action="Error" /> <!-- Element return value documentation should have text. -->
