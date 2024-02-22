@@ -4,7 +4,7 @@
 
 1.2. Execute command below to install the service.
 
-	sc create AutoTrader BinPath="C:\_Services\AutoTrader\AT.Worker.exe"
+	sc create AutoTrader BinPath="C:\Services\AutoTrader\AT.Worker.exe"
 
 1.3. Execute command below to start the service.
 	sc start AutoTrader

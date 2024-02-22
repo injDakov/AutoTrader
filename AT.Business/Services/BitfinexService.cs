@@ -1,41 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AT.Business.Interfaces;
+using AT.Business.Models;
+using AT.Business.Models.Dto;
 using AT.Domain;
 using AT.Domain.Enums;
-using Bitfinex.Net;
+using AutoMapper;
+using Bitfinex.Net.Clients;
+using Bitfinex.Net.Enums;
 using Bitfinex.Net.Objects;
 using CryptoExchange.Net.Authentication;
 using Microsoft.Extensions.Configuration;
 
 namespace AT.Business.Services
 {
-    /// <summary>BitfinexService class.</summary>
-    public class BitfinexService : IBitfinexService
+    public class BitfinexService : IExchangeService
     {
-        private readonly string _assemblyVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-
         private readonly BitfinexClient _bitfinexClient;
 
         private readonly IConfiguration _configuration;
         private readonly ILoggerService _loggerService;
-        private readonly IDbOrderService _dbOrderService;
+        private readonly IDbService _dbService;
+        private readonly IMapper _mapper;
 
         private readonly Models.AppSettings.AppSettings _appSettings;
 
-        /// <summary>Initializes a new instance of the <see cref="BitfinexService" /> class.</summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="loggerService">The logger service.</param>
-        /// <param name="dbOrderService">The database order service.</param>
-        public BitfinexService(IConfiguration configuration, ILoggerService loggerService, IDbOrderService dbOrderService)
+        public BitfinexService(IConfiguration configuration, ILoggerService loggerService, IDbService dbService, IMapper mapper)
         {
             _configuration = configuration;
             _loggerService = loggerService;
-            _dbOrderService = dbOrderService;
+            _dbService = dbService;
+            _mapper = mapper;
 
             _appSettings = _configuration.GetSection("AppSettings").Get<Models.AppSettings.AppSettings>();
 
@@ -43,24 +41,20 @@ namespace AT.Business.Services
             {
                 ApiCredentials =
                       new ApiCredentials(
-                          _appSettings.BitfinexClient.Key,
-                          _appSettings.BitfinexClient.Secret),
+                          _appSettings.ExchangesSettings.Single(s => s.Name.ToLower() == "bitfinex").Client.Key,
+                          _appSettings.ExchangesSettings.Single(s => s.Name.ToLower() == "bitfinex").Client.Secret),
             });
 
             _bitfinexClient = new BitfinexClient();
         }
 
-        /// <summary>Gets the Bitfinex active orders asynchronous.</summary>
-        /// <param name="stoppingToken">The stopping token.</param>
-        /// <returns>Task of IEnumerable of BitfinexOrder.</returns>
-        /// <exception cref="Exception">processed.</exception>
-        public async Task<IEnumerable<BitfinexOrder>> GetBitfinexActiveOrdersAsync(CancellationToken stoppingToken)
+        public async Task<IEnumerable<Models.Exchange.Order>> GetActiveOrdersAsync(CancellationToken cancellationToken)
         {
             int activeOrdersRequestMaxTry = 5;
 
             do
             {
-                var activeOrdersRequest = await _bitfinexClient.GetActiveOrdersAsync();
+                var activeOrdersRequest = await _bitfinexClient.SpotApi.Trading.GetOpenOrdersAsync(cancellationToken);
 
                 if (!activeOrdersRequest.Success)
                 {
@@ -68,33 +62,31 @@ namespace AT.Business.Services
 
                     if (activeOrdersRequestMaxTry == 0)
                     {
-                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexActiveOrdersAsync()", activeOrdersRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new LogDto(LogType.Error, "GetBitfinexActiveOrdersAsync", new DetailedMessage { Text = activeOrdersRequest.Error.Message }));
 
                         throw new Exception("processed");
                     }
 
-                    await AddDelayAfterOperation(stoppingToken);
+                    await Helpers.TimeHelper.AddDelayAfterOperation(20, cancellationToken);
                 }
                 else
                 {
-                    return activeOrdersRequest.Data;
+                    return _mapper.Map<IEnumerable<Models.Exchange.Order>>(activeOrdersRequest.Data);
                 }
             }
             while (true);
         }
 
-        /// <summary>Gets the Bitfinex prices asynchronous.</summary>
-        /// <param name="pairs">The pairs.</param>
-        /// <param name="stoppingToken">The stopping token.</param>
-        /// <returns>Task of IEnumerable of BitfinexSymbolOverview.</returns>
-        /// <exception cref="Exception">processed.</exception>
-        public async Task<IEnumerable<BitfinexSymbolOverview>> GetBitfinexPricesAsync(IEnumerable<Pair> pairs, CancellationToken stoppingToken)
+        public async Task<IEnumerable<Models.Exchange.SymbolOverview>> GetPricesAsync(IEnumerable<Pair> pairs, CancellationToken cancellationToken)
         {
             int pricesRequestMaxTry = 5;
 
             do
             {
-                var pricesRequest = await _bitfinexClient.GetTickerAsync(stoppingToken, $"symbols=fUSD,t{string.Join(",t", pairs.Select(p => p.Name))}");
+                var listOfSymbols = new List<string>() { "fUSD" };
+                listOfSymbols.AddRange(pairs.Select(p => $"t{p.Name}"));
+
+                var pricesRequest = await _bitfinexClient.SpotApi.ExchangeData.GetTickersAsync(listOfSymbols, cancellationToken);
 
                 if (!pricesRequest.Success)
                 {
@@ -102,35 +94,29 @@ namespace AT.Business.Services
 
                     if (pricesRequestMaxTry == 0)
                     {
-                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexPricesAsync()", pricesRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new LogDto(LogType.Error, "GetBitfinexPricesAsync", new DetailedMessage { Text = pricesRequest.Error.Message }));
 
                         throw new Exception("processed");
                     }
 
-                    await AddDelayAfterOperation(stoppingToken);
+                    await Helpers.TimeHelper.AddDelayAfterOperation(20, cancellationToken);
                 }
                 else
                 {
-                    return pricesRequest.Data;
+                    return _mapper.Map<IEnumerable<Models.Exchange.SymbolOverview>>(pricesRequest.Data);
                 }
             }
             while (true);
         }
 
-        /// <summary>Gets the Bitfinex order history asynchronous.</summary>
-        /// <param name="pair">The pair.</param>
-        /// <param name="activeOrderId">The active order identifier.</param>
-        /// <param name="stoppingToken">The stopping token.</param>
-        /// <returns>Task of BitfinexOrder.</returns>
-        /// <exception cref="Exception">processed.</exception>
-        public async Task<BitfinexOrder> GetBitfinexOrderHistoryAsync(Pair pair, long activeOrderId, CancellationToken stoppingToken)
+        public async Task<Models.Exchange.Order> GetOrderHistoryAsync(Pair pair, long activeOrderId, CancellationToken cancellationToken)
         {
             int ordersHistoryRequestMaxTry = 5;
             int ordersHistoryNullMaxTry = 5;
 
             do
             {
-                var ordersHistoryRequest = await _bitfinexClient.GetOrderHistoryAsync($"t{pair.Name}");
+                var ordersHistoryRequest = await _bitfinexClient.SpotApi.Trading.GetClosedOrdersAsync(symbol: $"t{pair.Name}", ct: cancellationToken);
 
                 if (!ordersHistoryRequest.Success)
                 {
@@ -138,12 +124,12 @@ namespace AT.Business.Services
 
                     if (ordersHistoryRequestMaxTry == 0)
                     {
-                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexOrderHistoryAsync()", ordersHistoryRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new LogDto(LogType.Error, "GetBitfinexOrderHistoryAsync", new DetailedMessage { Text = ordersHistoryRequest.Error.Message }));
 
                         throw new Exception("processed");
                     }
 
-                    await AddDelayAfterOperation(stoppingToken);
+                    await Helpers.TimeHelper.AddDelayAfterOperation(20, cancellationToken);
                 }
                 else
                 {
@@ -153,36 +139,36 @@ namespace AT.Business.Services
 
                         if (ordersHistoryNullMaxTry == 0)
                         {
-                            await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, GetBitfinexOrderHistoryAsync()", "Null"));
+                            await _loggerService.CreateLogAsync(new LogDto(LogType.Error, "GetBitfinexOrderHistoryAsync", new DetailedMessage { Text = "Null" }));
 
                             return null;
                         }
 
-                        await AddDelayAfterOperation(stoppingToken);
+                        await Helpers.TimeHelper.AddDelayAfterOperation(20, cancellationToken);
                     }
                     else
                     {
-                        return ordersHistoryRequest.Data.FirstOrDefault(o => o.Id == activeOrderId);
+                        return _mapper.Map<Models.Exchange.Order>(ordersHistoryRequest.Data.FirstOrDefault(o => o.Id == activeOrderId));
                     }
                 }
             }
             while (true);
         }
 
-        /// <summary>Places the new order asynchronous.</summary>
-        /// <param name="orderDB">The order database.</param>
-        /// <param name="pair">The pair.</param>
-        /// <param name="orderSide">The order side.</param>
-        /// <param name="orderPrice">The order price.</param>
-        /// <param name="stoppingToken">The stopping token.</param>
-        /// <returns>Task of Order.</returns>
-        public async Task<Order> PlaceNewOrderAsync(Order orderDB, Pair pair, OrderSide orderSide, decimal orderPrice, CancellationToken stoppingToken)
+        public async Task<Order> PlaceOrderAsync(Order orderDB, Pair pair, Models.Exchange.OrderSideEnum orderSide, string subLogMessage, CancellationToken cancellationToken)
         {
             int placeOrderRequestMaxTry = 5;
 
             do
             {
-                var placeOrderRequest = await _bitfinexClient.PlaceOrderAsync(pair.Name, orderSide, OrderTypeV1.ExchangeLimit, pair.OrderAmount, orderPrice);
+                var placeOrderRequest =
+                    await _bitfinexClient.SpotApi.Trading.PlaceOrderAsync(
+                                            symbol: $"t{pair.Name}",
+                                            side: _mapper.Map<OrderSide>(orderSide),
+                                            type: OrderType.ExchangeLimit,
+                                            quantity: pair.OrderAmount,
+                                            price: orderDB.Price,
+                                            ct: cancellationToken);
 
                 if (!placeOrderRequest.Success)
                 {
@@ -190,24 +176,22 @@ namespace AT.Business.Services
 
                     if (placeOrderRequestMaxTry == 0 || placeOrderRequest.Error.Message.Contains("not enough exchange balance for"))
                     {
-                        await _loggerService.CreateLogAsync(new Log(LogType.Error, $"AutoTrader v{_assemblyVersion}, PlaceNewOrderAsync()", placeOrderRequest.Error.Message));
+                        await _loggerService.CreateLogAsync(new LogDto(LogType.Error, "PlaceOrderAsync", new DetailedMessage { Text = $"{placeOrderRequest.Error.Message} {subLogMessage}" }));
 
                         return null;
                     }
 
-                    await AddDelayAfterOperation(stoppingToken);
+                    await Helpers.TimeHelper.AddDelayAfterOperation(20, cancellationToken);
                 }
                 else
                 {
-                    return await _dbOrderService.AddDbOrderAsync(placeOrderRequest.Data, orderDB);
+                    var placedOrder = _mapper.Map<PlacedOrder>(placeOrderRequest.Data.Data);
+                    placedOrder.Side = orderSide.ToString();
+
+                    return await _dbService.AddDbOrderAsync(placedOrder, orderDB);
                 }
             }
             while (true);
-        }
-
-        private async Task AddDelayAfterOperation(CancellationToken stoppingToken)
-        {
-            await Task.Delay(1000 * 20 * 1, stoppingToken);
         }
     }
 }

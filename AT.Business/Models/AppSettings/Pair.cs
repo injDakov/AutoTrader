@@ -1,22 +1,67 @@
-﻿namespace AT.Business.Models.AppSettings
+﻿using System;
+
+namespace AT.Business.Models.AppSettings
 {
-    /// <summary>Pair class.</summary>
     public class Pair
     {
-        /// <summary>Gets or sets the name for this pair.</summary>
-        /// <value>The name.</value>
-        public string Name { get; set; }
+        private string _name;
+        private decimal _orderAmount;
+        private int _maxOrderLevelCount;
 
-        /// <summary>Gets or sets the order amount for this pair.</summary>
-        /// <value>The order amount.</value>
-        public decimal OrderAmount { get; set; }
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
 
-        /// <summary>Gets or sets the maximum order level for this pair.</summary>
-        /// <value>The maximum order level.</value>
-        public int MaxOrderLevel { get; set; }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentOutOfRangeException($"The 'AppSettings ExchangeSettings Pair.Name' it must not be empty !");
+                }
 
-        /// <summary>Gets or sets a value indicating whether this pair is active.</summary>
-        /// <value><c>true</c> if this instance is active; otherwise, <c>false</c>.</value>
+                _name = value;
+            }
+        }
+
+        public decimal OrderAmount
+        {
+            get
+            {
+                return _orderAmount;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException($"The 'AppSettings ExchangeSettings Pair.OrderAmount' has to be bigger than '0', but the current value is '{value}' !");
+                }
+
+                _orderAmount = value;
+            }
+        }
+
+        public int MaxOrderLevelCount
+        {
+            get
+            {
+                return _maxOrderLevelCount;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException($"The 'AppSettings ExchangeSettings Pair.MaxOrderLevelCount' has to be '0' or bigger, but the current value is '{value}' !");
+                }
+
+                _maxOrderLevelCount = value;
+            }
+        }
+
         public bool IsActive { get; set; }
     }
 }

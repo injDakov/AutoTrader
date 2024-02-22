@@ -1,0 +1,3 @@
+sc stop AutoTrader
+
+pause
