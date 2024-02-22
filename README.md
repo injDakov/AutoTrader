@@ -37,7 +37,7 @@ All wallets are facilitated and backed by **[Bitfinex](https://www.bitfinex.com/
 * **Bitcoin (BTC)**\
 Address - **3FqXqTzGhzxosERosz832F7rGDXMteMjRh**
 
-* **Ethereum (ETH)**
+* **Ethereum (ETH)**\
 Address - **0x818E07acD7d75d1812B2E7067e417C5Bc80d327E**
 
 * **XRP (XRP)** Depositing Ripple to Bitfinex requires BOTH a deposit address and a deposit Tag.\
@@ -79,7 +79,7 @@ In the latest version, the trading algorithm has been refined to be more adaptiv
 Based on my observations of the crypto market in recent months, I've concluded that it's more advantageous to concentrate on a smaller number of pairs
 with a higher count of active orders. This approach leads to more executed orders and, consequently, more frequent profits.
 
-**Update: February 2024** Currently, my pairs' configuration consists of 7 active pairs with a total of 198 orders.
+**Update, February 2024:** Currently, my pairs' configuration consists of 7 active pairs with a total of 198 orders.
 
 # To use the AutoTrader effectively, follow these steps
 
