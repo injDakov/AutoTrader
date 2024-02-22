@@ -1,0 +1,3 @@
+sc start AutoTrader
+
+pause

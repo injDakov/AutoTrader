@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>PlaceOrder Notification</title>
+    <style>
+        .center-text {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <table border="1" style="border-collapse:collapse">
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Field</th>
+                    <th style="width: 100px;">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="center-text">Exchange</td>
+                    <td class="center-text">{{Exchange}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">CreateDate</td>
+                    <td class="center-text">{{formatDate CreateDate "yyyy-MM-dd HH:mm:ss"}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">ExecutedDate</td>
+                    <td class="center-text">{{formatDate ExecutedDate "yyyy-MM-dd HH:mm:ss"}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">Side</td>
+                    <td class="center-text">{{Side}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">Amount</td>
+                    <td class="center-text">{{Amount}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">AmountOriginal</td>
+                    <td class="center-text">{{AmountOriginal}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">Price</td>
+                    <td class="center-text">{{Price}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">PriceAverage</td>
+                    <td class="center-text">{{PriceAverage}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">ProfitRatio</td>
+                    <td class="center-text">{{ProfitRatio}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">PreviousOrderExecutedPrice</td>
+                    <td class="center-text">{{PreviousOrderExecutedPrice}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">CurrentMarketPrice</td>
+                    <td class="center-text">{{CurrentMarketPrice}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">PreviousOrderProfitRatio</td>
+                    <td class="center-text">{{PreviousOrderProfitRatio}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">PreviousOrderProfitRatioToCurrentPrice</td>
+                    <td class="center-text">{{PreviousOrderProfitRatioToCurrentPrice}}</td>
+                </tr>
+                <tr>
+                    <td class="center-text">Status</td>
+                    <td class="center-text">{{Status}}</td>
+                <tr>
+                    <td class="center-text">Symbol</td>
+                    <td class="center-text">{{Symbol}}</td>
+                <tr>
+                    <td class="center-text">Type</td>
+                    <td class="center-text">{{Type}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

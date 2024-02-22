@@ -15,16 +15,18 @@ namespace AT.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.11")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("AT.Domain.Log", b =>
             {
                 b.Property<long>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("bigint")
-                    .UseIdentityColumn();
+                    .HasAnnotation("SqlServer:IdentityIncrement", 1)
+                    .HasAnnotation("SqlServer:IdentitySeed", 1)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                 b.Property<string>("Action")
                     .IsRequired()
@@ -53,7 +55,9 @@ namespace AT.Data.Migrations
                 b.Property<long>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("bigint")
-                    .UseIdentityColumn();
+                    .HasAnnotation("SqlServer:IdentityIncrement", 1)
+                    .HasAnnotation("SqlServer:IdentitySeed", 1)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                 b.Property<decimal>("Amount")
                     .HasColumnType("decimal(18,5)");
@@ -70,14 +74,14 @@ namespace AT.Data.Migrations
                 b.Property<decimal?>("CurrentMarketPrice")
                     .HasColumnType("decimal(18,5)");
 
+                b.Property<int>("Exchange")
+                    .HasColumnType("int");
+
                 b.Property<DateTime?>("ExecutedDate")
                     .HasColumnType("datetime2");
 
                 b.Property<long>("OrderId")
                     .HasColumnType("bigint");
-
-                b.Property<int>("OrderLevel")
-                    .HasColumnType("int");
 
                 b.Property<decimal?>("PreviousOrderExecutedPrice")
                     .HasColumnType("decimal(18,5)");
@@ -102,9 +106,6 @@ namespace AT.Data.Migrations
 
                 b.Property<string>("Side")
                     .IsRequired()
-                    .HasColumnType("nvarchar(max)");
-
-                b.Property<string>("Source")
                     .HasColumnType("nvarchar(max)");
 
                 b.Property<string>("Status")
@@ -136,10 +137,21 @@ namespace AT.Data.Migrations
                 b.Property<long>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("bigint")
-                    .UseIdentityColumn();
+                    .HasAnnotation("SqlServer:IdentityIncrement", 1)
+                    .HasAnnotation("SqlServer:IdentitySeed", 1)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b.Property<int>("ActiveHours")
+                    .HasColumnType("int");
 
                 b.Property<DateTime>("CreateDate")
                     .HasColumnType("datetime2");
+
+                b.Property<DateTime?>("EndDate")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("Exchange")
+                    .HasColumnType("int");
 
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
@@ -147,7 +159,7 @@ namespace AT.Data.Migrations
                 b.Property<DateTime?>("LastUpdateDate")
                     .HasColumnType("datetime2");
 
-                b.Property<int>("MaxOrderLevel")
+                b.Property<int>("MaxOrderLevelCount")
                     .HasColumnType("int");
 
                 b.Property<string>("Name")
@@ -157,9 +169,12 @@ namespace AT.Data.Migrations
                 b.Property<decimal>("OrderAmount")
                     .HasColumnType("decimal(18,5)");
 
+                b.Property<DateTime?>("StartDate")
+                    .HasColumnType("datetime2");
+
                 b.HasKey("Id");
 
-                b.HasIndex("Name")
+                b.HasIndex("Name", "Exchange")
                     .IsUnique();
 
                 b.ToTable("Pairs");
@@ -170,10 +185,15 @@ namespace AT.Data.Migrations
                 b.Property<long>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("bigint")
-                    .UseIdentityColumn();
+                    .HasAnnotation("SqlServer:IdentityIncrement", 1)
+                    .HasAnnotation("SqlServer:IdentitySeed", 1)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                 b.Property<int>("ActiveHours")
                     .HasColumnType("int");
+
+                b.Property<DateTime>("CreateDate")
+                    .HasColumnType("datetime2");
 
                 b.Property<DateTime?>("EndDate")
                     .HasColumnType("datetime2");
@@ -187,21 +207,22 @@ namespace AT.Data.Migrations
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
 
-                b.Property<decimal>("OrderAmount")
-                    .HasColumnType("decimal(18,5)");
-
-                b.Property<int>("OrderLevel")
-                    .HasColumnType("int");
+                b.Property<DateTime?>("LastUpdateDate")
+                    .HasColumnType("datetime2");
 
                 b.Property<long>("PairId")
                     .HasColumnType("bigint");
 
-                b.Property<DateTime>("StartDate")
+                b.Property<DateTime?>("StartDate")
                     .HasColumnType("datetime2");
 
                 b.HasKey("Id");
 
-                b.HasIndex("PairId");
+                b.HasIndex("PairId")
+                    .IsUnique();
+
+                b.HasIndex("IsActive", "PairId")
+                    .IsUnique();
 
                 b.ToTable("PairHistory");
             });
@@ -218,8 +239,8 @@ namespace AT.Data.Migrations
             modelBuilder.Entity("AT.Domain.PairHistory", b =>
             {
                 b.HasOne("AT.Domain.Pair", "Pair")
-                    .WithMany("PairHistory")
-                    .HasForeignKey("PairId")
+                    .WithOne("PairHistory")
+                    .HasForeignKey("AT.Domain.PairHistory", "PairId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
 

@@ -2,47 +2,52 @@
 
 [![License](http://img.shields.io/:license-MIT-blue.svg)](https://licenses.nuget.org/MIT)
 
-The **AutoTrader application** is an automation service that places crypto orders from the "Exchange Limit" type. It checks that some orders are still active or are executed and place reciprocal orders with the same amount at regular time intervals.
+The **AutoTrader application** is a sophisticated automation service designed to execute cryptocurrency orders using the "Exchange Limit" type.
+It continuously monitors the status of active and completed orders, promptly placing reciprocal orders with matching amounts at predefined intervals.
 
-**Example:** If we have an order of type "Sale" of 0.01 BTC and it is executed, then the AutoTrader will place an order for buying the same quantity of BTC at a price calculated by a coefficient **BuyLevel**.
-And after some time when that order of type "Buy" was executed, the AutoTrader will place an order again for the amount of 0.01 BTC to sell at a price calculated by a coefficient **SellLevel**.
+**Example:** Suppose we have a "Sale" order for 0.01 BTC that gets executed. In response, the AutoTrader will promptly initiate a purchase order
+for the same BTC quantity, calculated at a price determined by the **ProfitRatio** coefficient. Subsequently, when the "Buy" order is fulfilled,
+the AutoTrader will proceed to place another sell order for 0.01 BTC, again at a price determined by the **ProfitRatio** coefficient.
 
-The profit will not be reinvested automatically and you can monitor it and reinvest it manually or withdraw it.
+**Note:** The generated profit will not be automatically reinvested. You have the option to monitor and reinvest it manually, or withdraw it as desired.
 
-As a programmer and crypto enthusiast, I developed and still improving this application and keeping it free and open-source. 
-I believe that if we share our knowledge with people, the World will be a better place. 
+As a developer and crypto enthusiast, I've developed and continue to enhance this application while keeping it free and open-source.
+I firmly believe that by sharing our knowledge with others, we contribute to making the world a better place.
 
-The main purpose of creating this app is to meet my ideas for passive income, with minimal monitoring time of the App.
+The primary goal behind creating this app is to realize my vision of generating passive income with minimal time spent monitoring the application.
 
-`Showing this app is not a recommendation to join in the Crypto World or new investments. The application is "AS IS" and I am not responsible for any losses caused by the App or from the crypto bear market.`
+`Introducing this app DOES NOT constitute a recommendation to engage in the Crypto World or pursue new investments.
+The application is provided "AS IS" and I DO NOT accept responsibility for any losses resulting from the app or the fluctuations of the crypto bear market.`
 
-`You don't need to send any funds to me or another crypto account. All of your funds will be in your personal account and under your control.`
+`You are NOT required to send any funds to me or any other crypto account.
+All of your funds will remain in YOUR personal account, fully under YOUR control.`
 
-**But for your profit, I will accept all the blame! :)**\
-**And if you want, don't hesitate to grab me a beer.**
+**But for your benefit, I'll gladly shoulder all the blame! :)**\
+**And if you wish, feel free to grab me a beer.**
 
 #### An expression of gratitude
-For each person who donates, I can allocate space for his name, project, or other information that he wants to share with my auditory.
-The data will be in the section **Friends and Supporters**.
-This also can be ads exchange. :)
+For every donor, I offer the opportunity to reserve space for their name, project, or any other information they wish to share with my audience.
+The donor's data will be prominently featured within Section **Friends and Supporters**.
 
-#### Donation opportunities
-All wallets are provided and supported by [Bitfinex](https://bitfinex.com/?refcode=kwqvP9OMT). Please read the actual information.
+This platform can also serve as an exchanger for advertisements. :)
+
+#### Opportunities for donations
+All wallets are facilitated and backed by **[Bitfinex](https://www.bitfinex.com/sign-up?refcode=kwqvP9OMT)**. Please review the current information.
 
 * **Bitcoin (BTC)**\
 Address - **3FqXqTzGhzxosERosz832F7rGDXMteMjRh**
 
-* **Ethereum (ETH)** At this time Bitfinex does not accept transactions sent from smart contracts.\
+* **Ethereum (ETH)**
 Address - **0x818E07acD7d75d1812B2E7067e417C5Bc80d327E**
 
-* **XRP (XRP)** Sending XRP requires both an address and a Tag\
+* **XRP (XRP)** Depositing Ripple to Bitfinex requires BOTH a deposit address and a deposit Tag.\
 Address - **rLW9gnQo7BQhU6igk5keqYnH3TVrCxGRzm**\
 Tag - **2345006832**
 
 * **Dogecoin (DOGE)**\
 Address - **DNXrvtmrSWVyBKfmPizXQsreqLSRJQpqCv**
 
-* **Bitcoin Cash Node (BCHN)** Depositing anything other than BCH Node WILL RESULT IN LOSS OF FUNDS. Bitfinex currently is not supporting automated chain splits.\
+* **Bitcoin Cash Node (BCHN)** Depositing anything other than Bitcoin Cash WILL RESULT IN LOSS OF FUNDS. Bitfinex currently is not supporting automated chain splits.\
 Address - **bitcoincash:qz4tu69cn50gryhdahemytrszdtnn9vwtqexclhleq**
 
 * **Litecoin (LTC)**\
@@ -51,62 +56,67 @@ Address - **MD7ngCjhUbLNZfnvLdXkVu1LUkXwZMTHmF**
 * **Monero (XMR)**\
 Address - **86GNkvtYzbEZwq5MxpVvzP7kZ2tUgea5SKy8FTJ4S48fY8hz3DYBPWwJsLNz2woi7dQi34TYkcPDpZKh7iZLaaMLGHrSTwZ**
 
-**Note:** It is recommended that you check the transaction fees before making a transaction and then select the appropriate currency. Sometimes the fees are extremely high.
+**Note:** It is advisable to review transaction fees before proceeding with a transaction and select the appropriate currency accordingly.
+In some cases, fees can be exceptionally high.
 
 # My experience with the AutoTrader
 
-At the end of December 2020, I launched the App with some amount in USD distributed in 36 pairs and 61 active orders.
-Almost a year later (November 2021), from time to time I reinvested the profit and added a few fresh funds and now I have 37 active pairs with 99 orders.
+At the end of **December 2020, I launched the App** with an initial investment in USD spread across 36 pairs, managing 61 active orders.
+Nearly a year later, by November 2021, I periodically reinvested profits and injected fresh funds, resulting in 37 active pairs and 99 orders.
 
-In the first 7 months, the AutoTrader realized almost 1800 executed orders, this is exactly a 32% profit up from my initial investment.
-For 11 months of uptime, I have over 2370 executed orders. The general profit for this working time is 48,7% profit up from my all deposits in the time.
+During the first 7 months of operation, the AutoTrader executed nearly 1800 orders, yielding a 32% profit from the initial investment.
+Over 11 months of uptime, the total executed orders surpassed 2370, accumulating a 48.7% profit from all deposits made during that time.
 
-**The 48,7% profit for less than a year, with just a few hours of support and price monitoring, is fair enough!**
+**Achieving a 48.7% profit in less than a year, with minimal support and price monitoring, is undoubtedly commendable and speaks to the effectiveness of the AutoTrader.**
 
-The month with the best volume of executed orders was January, followed by August, September, October, and November.
-The AutoTrader could not adapt to the prices with the fast increase in the market and part of the orders stayed under the current market price.
+The month with the highest volume of executed orders was January, closely followed by August, September, October, and November.
+However, during periods of rapid market growth, the AutoTrader struggled to adapt to swiftly rising prices, resulting in some orders being left below the current market price.
 
-`But this is strongly related to the Crypto market volatility and your setting in the Pair config!`
+`This is closely tied to the volatility of the cryptocurrency market and the settings in your Pairs' configuration.`
 
-In the current version, the trading algorithm is a bit improved and is more adaptive to the market levels.
+In the latest version, the trading algorithm has been refined to be more adaptive to market conditions.
 
-My conclusion after monitoring the crypto market over the past few months is that it is better to focus on a few pairs with a bigger count of active orders. Thus we will have more executed orders, respectively more frequent profit.\
-In the next days, I also will reduce the count of active pairs and will increase the count of active orders for selected pairs.
+Based on my observations of the crypto market in recent months, I've concluded that it's more advantageous to concentrate on a smaller number of pairs
+with a higher count of active orders. This approach leads to more executed orders and, consequently, more frequent profits.
 
-# How to use it
+**Update: February 2024** Currently, my pairs' configuration consists of 7 active pairs with a total of 198 orders.
 
-1. Download the AutoTrader source code and spend time reviewing it. **Don't believe me at 100%! :)**
-2. Carefully execute the steps in **Prerequisites** 
-3. Carefully execute the steps in **How to configure the settings** 
-4. Prepare the Publish files from the project (via the Visual Studio or with commands)
-5. Install the AutoTrader as a normal Window Service
-6. Be patient and enjoy
-7. **Don't forget to grab me a beer if you like and appreciate my work :)**
+# To use the AutoTrader effectively, follow these steps
 
-**Hint:** You can skip steps 4 and 5 and just start the AutoTrader (via the Visual Studio or with commands).
+1. Begin by downloading the AutoTrader source code and thoroughly reviewing it. **Remember, don't take my word for it at 100%! :)**
+2. Proceed to execute the steps outlined in the **Prerequisites** section diligently.
+3. Follow through with the steps provided in **To configure the settings in the appSettings.json file, follow these steps** meticulously.
+4. Generate the Publish files from the project, either through Visual Studio or using commands.
+5. Install the AutoTrader as you would any normal Windows Service.
+6. Exercise patience and take pleasure in the process.
+7. And last but not least, if you find value in and appreciate my work, **don't forget to grab me a beer! :)**
 
-**Note:** Basic IT knowledge is expected.
+**Hint:** You can skip steps 4 and 5 and directly launch the AutoTrader, either via Visual Studio or using commands.
+
+**Note:** Basic IT knowledge is assumed for this process.
 
 # Prerequisites 
 
-* You have to install MS SQL Server ( The latest free SQL Express is good enough - [Download](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) )
-* Non-Mandatory: SMTP Server ( [I am using the free by Google]( https://support.google.com/a/answer/176600) )
-* You must have an account in [Bitfinex](https://bitfinex.com/?refcode=kwqvP9OMT) ( If you are new I will appreciate it if you use my ref link! )
-* You have to set up your **Key** and **Secret** in Bitfinex ( [How to do](https://support.bitfinex.com/hc/en-us/articles/115002349625-API-Key-Setup-Login))
-* **HINT:** I am using the Windows Server VM into [AWS Free Tier](https://aws.amazon.com/free/).  `It is completely free for 12 months but you should be careful when you create the VM because any wrong action can cost money!`
-* **HINT:** Instead of MS SQL Server, you can use [Amazon RDS Free Tier](https://aws.amazon.com/rds/free/)
-* **STRONG SUGGEST:** Good approach is to create and use a second your [Bitfinex](https://bitfinex.com/?refcode=kwqvP9OMT) account that has only funds you want the AutoTrader to operate with them. I also use this approach.
+* You need to install MS SQL Server, with the latest free SQL Express version being suitable for your needs [Download it](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+* Optional: SMTP Server ( [I'm using the free SMTP server provided by Google.]( https://support.google.com/a/answer/176600) )
+* You must have an account in **[Bitfinex](https://www.bitfinex.com/sign-up?refcode=kwqvP9OMT)** ( If you're new, I'd appreciate it if you could use my referral link! Referral code: kwqvP9OMT )
+* You need to configure your **Key** and **Secret** in Bitfinex ( [How to set up them](https://support.bitfinex.com/hc/en-us/articles/115002349625-API-Key-Setup-Login) )
+* **Hint:** I am using a Windows Server instance under AWS EC2 as part of [AWS Free Tier](https://aws.amazon.com/free/).
+`It is entirely free for 12 months, but exercise caution when creating the VM as any missteps can incur costs.`
+* **Hint:** Alternatively of MS SQL Server, you can use [Amazon RDS Free Tier](https://aws.amazon.com/rds/free/)
+* **STRONG SUGGEST:** A recommended approach is to create and use a secondary **[Bitfinex](https://www.bitfinex.com/sign-up?refcode=kwqvP9OMT)** account,
+containing only the funds you want the AutoTrader to operate with. I also employ this approach.
 
-# How to configure the settings (appSettings.json)
+# To configure the settings in the appSettings.json file, follow these steps
 
 #### MS SQL Server 
 ```
 "SqlSettings": {
-    "ConnectionString": "Data Source=<Set your server address>; Initial Catalog=AutoTrader; User Id=<Set your username>; Password=<Set your password>;"
-},
+    "ConnectionString": "Data Source=<Set your server address>; Initial Catalog=AutoTrader; User Id=<Set your username>; Password=<Set your password>; TrustServerCertificate=True;"
+}
 ```
 
-#### SMTP Settings / Notifications via email
+#### SMTP Server settings for email notifications
 ```
 "SmtpServer": {
     "Host": "smtp.gmail.com",
@@ -115,63 +125,85 @@ In the next days, I also will reduce the count of active pairs and will increase
     "Password": "<Set your password>",
     "Recipients": "<Set your recipients>",
     "IsActive": true
-},
+}
 ```
 
-#### Bitfinex API keys
+#### Cryptocurrency exchanges settings
 ```
-"BitfinexClient": {
-    "Key": "<Set your key>",
-    "Secret": "<Set your secret>"
-},
+"ExchangesSettings": [
+    {
+        "Name": "Bitfinex",
+        "Client": {
+            "Key": "<Set your key>",
+            "Secret": "<Set your secret>"
+        },
+        "IsActive": true,
+        "Pairs": [
+            {
+                // Examples will be provided below for clarification.
+            }
+        ]
+    },
+    {
+        "Name": "Binance",
+        "Client": {
+            "Key": "<Set your key>",
+            "Secret": "<Set your secret>"
+        },
+        "IsActive": false,
+        "Pairs": [
+            {
+                // Examples will be provided below for clarification.
+            }
+        ]
+    }
+]
 ```
 
-#### Profit percents
-After 11 months on **Live** and reviewing my own statistics I selected these ratios.
-You can use them or set your own, or extend the lists.
-
-**But keep in mind the logic: The elements count in both lists should be equal !**
+#### Profit ratio
+For almost four years now (since 2020y), I've been actively trading via the AutoTrader and analyzing market movements. During this time,
+I've settled on using this value for ProfitRatio as it aligns with my expectations and trading style. However, feel free to adjust it according to your preferences and goals.
 
 ```
-"ProfitPercents": {
-    "SellLevels": [ 1.0115, 1.021, 1.0295, 1.031, 1.0325 ],
-    "BuyLevels": [ 0.986, 0.9765, 0.967, 0.9655, 0.964 ]
-},
+"ProfitRatio": 1.01999
 ```
 
 #### Additional settings
-You can keep these values as is, or get familiar with the code and change them according to your opinion.
+You have the option to maintain these values as they are, or if you prefer, you can review the code and modify them based on your own judgment.
 
 ```
-"HealthCheckIntervalInHours": 3,
-"PricesQueueSize": 2,
+"TimeBetweenIterationInSeconds": 20,
+"CacheExpirationMultiplier": 15,
+"HealthCheckIntervalInHours": 0,
+"HealthCheckHours": [ 6, 19 ],
+"PricesQueueSize": 3,
+"MinRatioToNearestOrder": 1.00379,
 ```
 
 #### Pairs
-As I mentioned at the beginning the AutoTrader application and this article are not recommendations for joining the Crypto market.\
-For this consideration, I will **not share in a public place** my coin pairs.
-Just shared the template and structure for how you can fill the configuration. 
+As previously mentioned, both the AutoTrader application and this article **do not serve as recommendations** for entering the crypto market.\
+Therefore, I will **not publicly share** my coin pairs. Instead, I've provided a template and structure to guide you on how to fill the configuration.
 
-The pairs name you can get from Bitfinex for free.
+The pairs' names you can get from Bitfinex for free.
 
 ```
 "Pairs": [
     {
         "Name": "BTCUSD",
-        "OrderAmount": 0.01,
-        "MaxOrderLevel": 3,
-        "IsActive": "true"
+        "OrderAmount": 0.001,
+        "MaxOrderLevelCount": 5,
+        "IsActive": true
     },
     {
         "Name": "ETHUSD",
-        "OrderAmount": 0.1,
-        "MaxOrderLevel": 1,
+        "OrderAmount": 0.01,
+        "MaxOrderLevelCount": 10,
         "IsActive": "true"
     },
     {
         "Name": "LTCUSD",
-        "OrderAmount": 1,
-        "MaxOrderLevel": 2,
+        "OrderAmount": 0.5,
+        "MaxOrderLevelCount": 7,
         "IsActive": "true"
     }
 ]
@@ -179,65 +211,91 @@ The pairs name you can get from Bitfinex for free.
 
 # Notifications
 
-* **Healthcheck** - on an interval of 'HealthCheckIntervalInHours' is sending an email with the count of active pairs and active orders
-* **Trade event** - for each executed order and placed new order it is sending an email with information about that
-* **Other** - In case of some error or other type of event that is not included in the above two types the AutoTrader is sending an email with information
+* **Healthcheck** - At intervals defined by 'HealthCheckIntervalInHours' or specific hours as specified in 'HealthCheckHours', an email is sent containing
+the count of active pairs and active orders.
+* **Trade event** - An email containing information about each executed order and newly placed order is sent for every transaction.
+* **Other** - In the event of an error or any other type of event not covered by the above two scenarios, the AutoTrader sends an email containing relevant information.
 
 # Friends and Supporters
 
-Waiting for the first friends! :) 
+Looking forward to welcoming our first friends! :)
 
 # Q&A Section
 
-**Q: Is that possible to lose funds with crypto investments?**\
-**A:** The crypto market is high risk and volatile. You should be ready to gather huge losses in a short time but if you are patient you will earn in long term! Don't panic! :)
+**Q: Who will manage my funds?**\
+**A:** Rest assured, all funds will remain in **YOUR personal account**, fully under **YOUR control**. There's **NO need** to transfer funds to me or any other crypto account.
 
-**Q: Is that possible to lose funds fault of the AutoTrader?**\
-**A:** For almost one year on Live with my real money there was no case to lost funds fault of the AutoTrader. But keep in mind that the application is "AS IS" and I am not responsible for any losses caused by the App or from the crypto bear market. Also, the AutoTrader is open source and you can get familiar with the used algorithms. **If you found a bug contact me and I will try to fix it ASAP.**
+**Q: Is there a possibility of losing funds with crypto investments?**\
+**A:** The crypto market is known for its high risk and volatility. While there's potential for significant losses in a short period, patience can lead to long-term gains.
+Remember, stay calm and don't panic! :)
 
-**Q: Why in some places the documentation is missing or is not clear?**\
-**A:** I am not pretending that I provided completely full documentation. If you have any questions and/or suggestions don't hesitate to contact me and I will answer you and will extend the documentation and Q&A section. **The easiest way is via message on [LinkedIn](https://bg.linkedin.com/in/dakov)**
+**Q: Is it possible to lose funds due to the AutoTrader?**\
+**A:** In nearly for 4 years (since 2020y) of live trading with my real money, there hasn't been a single instance of losing funds due to the AutoTrader.
+However, it's important to remember that the application is provided "AS IS" and I assume NO responsibility for any losses resulting from the app
+or the volatile nature of the crypto market. Additionally, the AutoTrader is open source, allowing you to review and understand the algorithms used.
+**If you encounter a bug, please don't hesitate to contact me, and I'll make every effort to resolve it as soon as possible.**
 
-**Q: Why the Database's schema is not completely normalized and there are data repeatings?**\
-**A:** The reason for that is pretty simple because has no UI for reporting, and with pretty simple SELECT queries I can extract the reports of required data! :) 
+**Q: Why is documentation missing or unclear in certain areas?**\
+**A:** I acknowledge that the documentation may not be exhaustive. If you have any questions or suggestions, please reach out to me.
+I'm here to provide answers and expand the documentation and Q&A section as needed.
+**The most convenient method is through direct messaging on [LinkedIn](https://bg.linkedin.com/in/dakov)**
+
+**Q: Why isn't the database schema fully normalized, leading to data repetitions?**\
+**A:** The reason is straightforward: there is no need for a fully normalized schema because there is no UI for reporting. Using simple SELECT queries,
+I can easily extract the required data for reports.
 
 # To-Do List
 
-* Continuously improve the algorithm and bug fixing
-* Extend the Email notifications and make them more human-readable
-* Add Binance as a second crypto trader platform
+* Continuously enhance the algorithm and resolve bugs
+* Fully implement support for trading on the Binance cryptocurrency exchange
+* Introduce the capability for dynamic order amounts to be determined by the order cost
 
-# Release notes
+# Release Notes
 
-#### v1.4.2 Version
-
+#### v2.7.4 Version
 **What's New**
 
-* Improved version of the Trade algorithm
-* Added Prices Queue included into prices calculation for the new orders 
-* Improved configurable variables and gives more flexibility
-* Added ability to for unlimited counts of order's level for certain pair
-* Extended the logging with Serilog
-* Improved code quality and documentation
+* The database has been extended to support multiple cryptocurrency exchanges
+* The .NET code was refactored to support multiple cryptocurrency exchanges by implementing the IExchangeService interface
+* Upgraded to .NET 8
+* Introduced email template for PlaceOrder notification
+* Implemented caching to optimize database calls
+* Enhanced trading algorithm and resolved bugs
+* Added unit tests
 
-**How to update from the previous version**
+**To update from the previous version, follow these steps**
 
 * Stop the App
-* Replace the files with new ones
-* Fill appSettings.json with your configurable values
-* Start the App and enjoy! :)
+* Update files with the new versions
+* Customize appSettings.json with Your preferences
+* Launch the Application and experience the enhancements!
+
+#### v1.4.2 Version
+**What's New**
+
+* Enhanced Trade algorithm
+* Introduced Prices Queue for improved order price calculation
+* Enhanced reconfigurability with more flexible variables
+* Added support for unlimited order levels for specific pairs
+* Integrated Serilog for expanded logging capabilities
+* Improved code quality and documentation
+
+**To update from the previous version, follow these steps**
+
+* Stop the App
+* Update files with the new versions
+* Customize appSettings.json with Your preferences
+* Launch the Application and experience the enhancements!
 
 #### v1.3.5 Version
-
 **Minimum Viable Product**
 
-* Good enough version of the trading algorithm
-* Ability to self-configuration the pairs via the config file
+* Functional trading algorithm
+* Pairs' self-configuration through the config file
 
 # Author
 
 #### Petar Dakov
-
 * [LinkedIn](https://bg.linkedin.com/in/dakov)
 * [Personal Website](http://dakov.net/)
 

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using AT.Business.AutoMapper;
 using AT.Business.Interfaces;
 using AT.Business.Services;
 using AT.Data;
@@ -12,11 +13,8 @@ using Serilog;
 
 namespace AT.Worker
 {
-    /// <summary>Program class.</summary>
     public class Program
     {
-        /// <summary>Defines the entry point of the application.</summary>
-        /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
             var appPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "logs\\LogsForDay.txt");
@@ -39,16 +37,13 @@ namespace AT.Worker
                 catch (Exception e)
                 {
                     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(e, "An error occurred while initializing the database.");
+                    logger.LogError(e, "An error was encountered during the initialization of the database.");
                 }
             }
 
             host.Run();
         }
 
-        /// <summary>Creates the host builder.</summary>
-        /// <param name="args">The arguments.</param>
-        /// <returns>The IHostBuilder.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseWindowsService()
@@ -57,9 +52,12 @@ namespace AT.Worker
                     var connection = hostContext.Configuration.GetSection("SqlSettings:ConnectionString").Value;
                     services.AddDbContext<SqlContext>(options => options.UseSqlServer(connection, x => x.MigrationsAssembly("AT.Data").EnableRetryOnFailure().CommandTimeout(180)));
 
+                    services.AddAutoMapper(typeof(ExchangeToPrivateProfile).Assembly);
+
                     services.AddTransient<ILoggerService, LoggerService>();
-                    services.AddTransient<IDbOrderService, DbOrderService>();
-                    services.AddTransient<IBitfinexService, BitfinexService>();
+                    services.AddTransient<IDbService, DbService>();
+                    services.AddTransient<ITraderService, TraderService>();
+                    services.AddTransient<ITraderHelperService, TraderHelperService>();
 
                     services.AddHostedService<Worker>();
                 });
